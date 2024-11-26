@@ -6,25 +6,25 @@ import pandas as pd
 
 # URL de la API
 API_URL = "http://54.234.146.136:8000/api/v1/predict"
-# Configurar la aplicaci髇 Dash
+# Configurar la aplicaci贸n Dash
 app = Dash(__name__)
-app.title = "Dashboard de Predicci髇 de Riesgo de Impago"
+app.title = "Dashboard de Prediccion de Riesgo de Impago"
 
 # Layout del Dashboard
 app.layout = html.Div(
     style={"backgroundColor": "#F7F7F7", "fontFamily": "'Open Sans', sans-serif", "padding": "20px"},
     children=[
         html.H1(
-            "Dashboard de Predicci髇 de Riesgo de Impago",
+            "Dashboard de Prediccion de Riesgo de Impago",
             style={"textAlign": "center", "color": "#4E79A7"},
         ),
         html.Div(
             children=[
                 html.H3("Panel de Entrada", style={"color": "#4E79A7"}),
-                dcc.Input(id="input-limite", type="number", placeholder="L韒ite de Cr閐ito", style={"margin": "10px"}),
+                dcc.Input(id="input-limite", type="number", placeholder="L铆mite de Cr茅dito", style={"margin": "10px"}),
                 dcc.Input(id="input-edad", type="number", placeholder="Edad", style={"margin": "10px"}),
-                dcc.Input(id="input-genero", type="number", placeholder="G閚ero (1=Masculino, 2=Femenino)", style={"margin": "10px"}),
-                dcc.Input(id="input-educacion", type="number", placeholder="Nivel de Educaci髇 (1=Postgrado, etc.)", style={"margin": "10px"}),
+                dcc.Input(id="input-genero", type="number", placeholder="G茅nero (1=Masculino, 2=Femenino)", style={"margin": "10px"}),
+                dcc.Input(id="input-educacion", type="number", placeholder="Nivel de Educaci贸n (1=Postgrado, etc.)", style={"margin": "10px"}),
                 dcc.Input(id="input-estado", type="number", placeholder="Estado Civil (1=Casado, etc.)", style={"margin": "10px"}),
                 dcc.Input(id="input-pay0", type="number", placeholder="Historial de Pagos (PAY_0)", style={"margin": "10px"}),
                 html.Button("Predecir", id="btn-prediccion", style={"backgroundColor": "#4E79A7", "color": "#FFFFFF", "marginTop": "10px"}),
@@ -51,7 +51,7 @@ app.layout = html.Div(
     ],
 )
 
-# Callback para realizar la predicci髇 y actualizar el resultado
+# Callback para realizar la predicci贸n y actualizar el resultado
 @app.callback(
     Output("resultado-prediccion", "children"),
     Output("roc-curve", "figure"),
@@ -82,7 +82,7 @@ def actualizar_dashboard(n_clicks, limite, edad, genero, educacion, estado, pay0
                 probabilidad = resultado["probabilidad"]
                 riesgo = resultado["riesgo"]
 
-                # Generar la curva ROC (simulada para visualizaci髇)
+                # Generar la curva ROC (simulada para visualizaci贸n)
                 fpr = [0.0, 0.1, 0.2, 0.5, 0.7, 1.0]
                 tpr = [0.0, 0.3, 0.5, 0.7, 0.9, 1.0]
                 roc_fig = go.Figure(data=go.Scatter(x=fpr, y=tpr, mode="lines"))
@@ -100,7 +100,7 @@ def actualizar_dashboard(n_clicks, limite, edad, genero, educacion, estado, pay0
                     factores_fig,
                 )
             else:
-                return "Error en la predicci髇: No se pudo conectar a la API", go.Figure(), go.Figure()
+                return "Error en la predicci贸n: No se pudo conectar a la API", go.Figure(), go.Figure()
         except Exception as e:
             return f"Error: {e}", go.Figure(), go.Figure()
     return "", go.Figure(), go.Figure()

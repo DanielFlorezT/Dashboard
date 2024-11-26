@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from dash import Dash, html, dcc, Input, Output, State
 import plotly.graph_objects as go
 import requests
 import pandas as pd
 
 # URL de la API
-API_URL = "http://54.234.146.136:8000/api/v1/predict"
+API_URL = "http://54.164.45.184:8000/api/v1/predict"
+
 # Configurar la aplicación Dash
 app = Dash(__name__)
 app.title = "Dashboard de Predicción de Riesgo de Impago"
@@ -15,53 +17,8 @@ app.layout = html.Div(
     style={"backgroundColor": "#F7F7F7", "fontFamily": "'Open Sans', sans-serif", "padding": "20px"},
     children=[
         html.H1(
-            "Dashboard de Predicción de Riesgo de Impago en Clientes de Tarjetas de Crédito",
+            "Dashboard de Predicción de Riesgo de Impago",
             style={"textAlign": "center", "color": "#4E79A7"},
-        ),
-        html.H2(
-            "Grupo 4 - Despliegue de Soluciones Analíticas",
-            style={"textAlign": "center", "color": "#F28E2C"},
-        ),
-        html.Div(
-            style={
-                "backgroundColor": "#FFFFFF",
-                "padding": "20px",
-                "borderRadius": "10px",
-                "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.1)",
-                "marginBottom": "20px",
-            },
-            children=[
-                html.P(
-                    "En este dashboard, puedes calcular el riesgo de incumplimiento de pago de un cliente "
-                    "según diversas características. Explora las combinaciones de variables para analizar "
-                    "los factores que más influyen en el riesgo.",
-                    style={"color": "#333333", "fontSize": "16px"},
-                ),
-            ],
-        ),
-        html.Div(
-            style={
-                "backgroundColor": "#FFFFFF",
-                "padding": "20px",
-                "borderRadius": "10px",
-                "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.1)",
-                "marginBottom": "20px",
-            },
-            children=[
-                html.H3("Descripción de Variables", style={"color": "#4E79A7"}),
-                html.P("Edad: Edad del cliente.", style={"color": "#555555"}),
-                html.P("Límite de crédito: Monto máximo aprobado para el cliente.", style={"color": "#555555"}),
-                html.P("Género: 1 para masculino, 2 para femenino.", style={"color": "#555555"}),
-                html.P(
-                    "Educación: Nivel de educación (1=Postgrado, 2=Universitario, etc.).",
-                    style={"color": "#555555"},
-                ),
-                html.P("Estado Civil: 1=Casado, 2=Soltero, etc.", style={"color": "#555555"}),
-                html.P(
-                    "Historial de Pagos (PAY_0): Estado del pago más reciente (-1=pagó a tiempo, 1=atraso de 1 mes, ..., 9=atraso de 9 meses o más).",
-                    style={"color": "#555555"},
-                ),
-            ],
         ),
         html.Div(
             children=[
@@ -71,7 +28,7 @@ app.layout = html.Div(
                 dcc.Input(id="input-genero", type="number", placeholder="Género (1=Masculino, 2=Femenino)", style={"margin": "10px"}),
                 dcc.Input(id="input-educacion", type="number", placeholder="Nivel de Educación (1=Postgrado, etc.)", style={"margin": "10px"}),
                 dcc.Input(id="input-estado", type="number", placeholder="Estado Civil (1=Casado, etc.)", style={"margin": "10px"}),
-                dcc.Input(id="input-pay0", type="number", placeholder="Historial de Pagos", style={"margin": "10px"}),
+                dcc.Input(id="input-pay0", type="number", placeholder="Historial de Pagos (PAY_0)", style={"margin": "10px"}),
                 html.Button("Predecir", id="btn-prediccion", style={"backgroundColor": "#4E79A7", "color": "#FFFFFF", "marginTop": "10px"}),
             ],
         ),
@@ -90,6 +47,13 @@ app.layout = html.Div(
             children=[
                 html.H3("Factores de Influencia", style={"color": "#4E79A7"}),
                 dcc.Graph(id="factores-influencia"),
+            ],
+            style={"marginTop": "20px"},
+        ),
+        html.Div(
+            children=[
+                html.H3("Recomendación", style={"color": "#4E79A7"}),
+                html.P(id="recomendacion", style={"color": "#555555", "fontSize": "16px", "marginTop": "20px"}),
             ],
             style={"marginTop": "20px"},
         ),
@@ -115,6 +79,7 @@ app.layout = html.Div(
     Output("resultado-prediccion", "children"),
     Output("roc-curve", "figure"),
     Output("factores-influencia", "figure"),
+    Output("recomendacion", "children"),
     Input("btn-prediccion", "n_clicks"),
     State("input-limite", "value"),
     State("input-edad", "value"),
@@ -151,22 +116,26 @@ def actualizar_dashboard(n_clicks, limite, edad, genero, educacion, estado, pay0
                 factores = {"Límite de Crédito": 0.5, "Edad": 0.3, "Historial de Pagos": 0.2}
                 factores_df = pd.DataFrame(factores.items(), columns=["Variable", "Importancia"])
                 factores_fig = go.Figure(data=[go.Bar(x=factores_df["Variable"], y=factores_df["Importancia"])])
-                factores_fig.update_layout(
-                    title="Factores de Influencia",
-                    xaxis_title="Variables",
-                    yaxis_title="Importancia",
+                factores_fig.update_layout(title="Factores de Influencia", xaxis_title="Variables", yaxis_title="Importancia")
+
+                # Recomendación
+                recomendacion = (
+                    "Se recomienda establecer alertas tempranas y ajustar políticas para clientes con alto riesgo. "
+                    "Como puede verse los factores más incidentes en el riesgo son el estado de pago en el mes más reciente a la fecha, "
+                    "seguido de la edad y el sexo en una menor proporción."
                 )
 
                 return (
                     f"Probabilidad de incumplimiento: {probabilidad:.2f}. Riesgo: {riesgo}",
                     roc_fig,
                     factores_fig,
+                    recomendacion,
                 )
             else:
-                return "Error en la predicción: No se pudo conectar a la API", go.Figure(), go.Figure()
+                return "Error en la predicción: No se pudo conectar a la API", go.Figure(), go.Figure(), ""
         except Exception as e:
-            return f"Error: {e}", go.Figure(), go.Figure()
-    return "", go.Figure(), go.Figure()
+            return f"Error: {e}", go.Figure(), go.Figure(), ""
+    return "", go.Figure(), go.Figure(), ""
 
 
 if __name__ == "__main__":

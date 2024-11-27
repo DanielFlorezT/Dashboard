@@ -13,11 +13,66 @@ app.title = "Dashboard de Predicción de Riesgo de Impago"
 
 # Layout del Dashboard
 app.layout = html.Div(
-    style={"backgroundColor": "#F7F7F7", "fontFamily": "'Open Sans', sans-serif", "padding": "20px"},
+    style={
+        "backgroundColor": "#F7F7F7",  # Fondo general
+        "fontFamily": "'Open Sans', sans-serif",
+        "padding": "20px",
+        "maxWidth": "1200px",
+        "margin": "0 auto",
+    },
     children=[
         html.H1(
-            "Dashboard de Predicción de Riesgo de Impago",
-            style={"textAlign": "center", "color": "#4E79A7"},
+            "Predicción de probabilidad del riesgo de incumplimiento de pago en clientes de tarjetas de crédito",
+            style={
+                "textAlign": "center",
+                "color": "#4E79A7",  # Azul primario
+                "paddingBottom": "10px",
+            },
+        ),
+        html.H2(
+            "Grupo 4 - Despliegue de Soluciones Analíticas",
+            style={"textAlign": "center", "color": "#F28E2C"},
+        ),
+        html.Div(
+            style={
+                "backgroundColor": "#FFFFFF",
+                "padding": "20px",
+                "borderRadius": "10px",
+                "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.1)",
+                "marginBottom": "20px",
+            },
+            children=[
+                html.P(
+                    "En el presente dashboard, puede calcularse el riesgo de que un cliente incumpla "
+                    "con sus obligaciones de tarjeta de crédito. Explore diferentes combinaciones "
+                    "de variables para identificar patrones y factores que más influyen en el riesgo.",
+                    style={"color": "#333333", "fontSize": "16px"},
+                ),
+            ],
+        ),
+        html.Div(
+            style={
+                "backgroundColor": "#FFFFFF",
+                "padding": "20px",
+                "borderRadius": "10px",
+                "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.1)",
+                "marginBottom": "20px",
+            },
+            children=[
+                html.H3("Descripción de Variables", style={"color": "#4E79A7"}),
+                html.P("Edad: Edad del cliente.", style={"color": "#555555"}),
+                html.P("Límite de crédito: Monto máximo aprobado para el cliente.", style={"color": "#555555"}),
+                html.P("Género: 1 para masculino, 2 para femenino.", style={"color": "#555555"}),
+                html.P(
+                    "Educación: Nivel de educación (1=Postgrado, 2=Universitario, etc.).",
+                    style={"color": "#555555"},
+                ),
+                html.P("Estado Civil: 1=Casado, 2=Soltero, etc.", style={"color": "#555555"}),
+                html.P(
+                    "PAY_0: Estado del pago en el mes de consulta (-1=pagó a tiempo, 1=atraso de 1 mes, ..., 9=atraso de 9 meses o más).",
+                    style={"color": "#555555"},
+                ),
+            ],
         ),
         html.Div(
             children=[
@@ -140,6 +195,5 @@ def actualizar_dashboard(n_clicks, limite, edad, genero, educacion, estado, pay0
 
 if __name__ == "__main__":
     app.run_server(debug=True, host="0.0.0.0", port=8050)
-
 
 

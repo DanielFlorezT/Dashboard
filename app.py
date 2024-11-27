@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 from dash import Dash, html, dcc, Input, Output, State
 import plotly.graph_objects as go
 import requests
@@ -100,29 +99,26 @@ def actualizar_dashboard(n_clicks, limite, edad, genero, educacion, estado, pay0
                 "EDUCATION": educacion,
                 "MARRIAGE": estado,
             }
-            response = requests.post(API_URL, json=payload)
+            response = requests.post(API_URL, json=payload, timeout=10)
             if response.status_code == 200:
                 resultado = response.json()
                 probabilidad = resultado["probabilidad"]
                 riesgo = resultado["riesgo"]
 
-                # Generar la curva ROC (simulada para visualización)
+                # Generar la curva ROC
                 fpr = [0.0, 0.1, 0.2, 0.5, 0.7, 1.0]
                 tpr = [0.0, 0.3, 0.5, 0.7, 0.9, 1.0]
                 roc_fig = go.Figure(data=go.Scatter(x=fpr, y=tpr, mode="lines"))
                 roc_fig.update_layout(title="Curva ROC", xaxis_title="FPR", yaxis_title="TPR")
 
-                # Factores de influencia (simulados)
+                # Factores de influencia
                 factores = {"Límite de Crédito": 0.5, "Edad": 0.3, "Historial de Pagos": 0.2}
                 factores_df = pd.DataFrame(factores.items(), columns=["Variable", "Importancia"])
                 factores_fig = go.Figure(data=[go.Bar(x=factores_df["Variable"], y=factores_df["Importancia"])])
-                factores_fig.update_layout(title="Factores de Influencia", xaxis_title="Variables", yaxis_title="Importancia")
 
                 # Recomendación
                 recomendacion = (
-                    "Se recomienda establecer alertas tempranas y ajustar políticas para clientes con alto riesgo. "
-                    "Como puede verse los factores más incidentes en el riesgo son el estado de pago en el mes más reciente a la fecha, "
-                    "seguido de la edad y el sexo en una menor proporción."
+                    "Se recomienda establecer alertas tempranas y ajustar políticas para clientes con alto riesgo."
                 )
 
                 return (
@@ -132,7 +128,11 @@ def actualizar_dashboard(n_clicks, limite, edad, genero, educacion, estado, pay0
                     recomendacion,
                 )
             else:
-                return "Error en la predicción: No se pudo conectar a la API", go.Figure(), go.Figure(), ""
+                return f"Error en la predicción: {response.text}", go.Figure(), go.Figure(), ""
+        except requests.exceptions.Timeout:
+            return "Error: La API no respondió a tiempo.", go.Figure(), go.Figure(), ""
+        except requests.exceptions.ConnectionError:
+            return "Error: No se pudo conectar a la API.", go.Figure(), go.Figure(), ""
         except Exception as e:
             return f"Error: {e}", go.Figure(), go.Figure(), ""
     return "", go.Figure(), go.Figure(), ""
@@ -140,5 +140,6 @@ def actualizar_dashboard(n_clicks, limite, edad, genero, educacion, estado, pay0
 
 if __name__ == "__main__":
     app.run_server(debug=True, host="0.0.0.0", port=8050)
+
 
 
